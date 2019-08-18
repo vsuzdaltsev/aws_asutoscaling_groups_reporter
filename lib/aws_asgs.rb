@@ -118,7 +118,9 @@ module Aws
     end
 
     def symbolize(tags)
-      tags.each_with_object({}) { |(key, value), memo| memo[key.to_s] = value }
+      tags.each_with_object({}) do |(key, value), memo|
+        memo[key.to_s] = value
+      end
     end
 
     def all_asgs
