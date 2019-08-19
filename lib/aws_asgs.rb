@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'aws-sdk'
 
 # Report Autoscaling groups by tags/running vms
 module Aws
@@ -137,7 +138,7 @@ module Aws
         max_size:         asg[:max_size],
         desired_capacity: asg[:desired_capacity],
         tags:             tags(asg),
-        instances:        !asg[:instances].empty?
+        instances:        asg[:instances].size
       }
     end
 
@@ -173,7 +174,7 @@ module Aws
     end
 
     def empty_asg?(parameters)
-      !parameters[:instances] && parameters[:desired_capacity].zero?
+      parameters[:instances].zero? && parameters[:desired_capacity].zero?
     end
   end
 end

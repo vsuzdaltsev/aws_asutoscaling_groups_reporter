@@ -23,12 +23,14 @@ end
 
 # @param env [String] - set within 'environment' tag
 # @param regions [Array] - aws regions to lookup
-# @param asgs_type [String] - 'running_asgs' or 'sleeping_asgs'.
-#   Running asg has at least one EC2 running or desired
 # @return [Hash]
-def environment_asgs(env, regions, asgs_type)
-  value = regions.map do |region|
-    { region => Aws::Asgs.new(region: region, filter_by_tags: { environment: env }).send(asgs_type) }
+def environment_asgs(env, regions)
+  value = regions.each_with_object({}) do |region, memo|
+    asgs = Aws::Asgs.new(region: region, filter_by_tags: { environment: env })
+
+    ASGS_TYPES.each do |asg_type|
+      memo.merge!(asg_type => { region: asgs.send(asg_type) })
+    end
   end
 
   { env => value }
@@ -37,9 +39,7 @@ end
 def all_asgs(regions)
   {}.tap do |asgs|
     ENVIRONMENTS.each do |env|
-      ASGS_TYPES.each do |asgs_type|
-        asgs[asgs_type] = environment_asgs(env, regions, asgs_type)
-      end
+      asgs.merge!(environment_asgs(env, regions))
     end
   end
 end
