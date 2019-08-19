@@ -97,8 +97,12 @@ module Aws
     end
 
     def running
+      select_by_instances('!')
+    end
+
+    def by_instances(negation)
       asgs = all_asgs.select do |name, parameters|
-        !empty_asg?(parameters) && tags_filtered?(parameters) ? { name => parameters } : nil
+        eval("#{negation}empty_asg?(parameters)") && tags_filtered?(parameters) ? { name => parameters } : nil
       end
 
       CREATE_NAMES.call(asgs)
@@ -108,14 +112,7 @@ module Aws
     end
 
     def sleeping
-      asgs = all_asgs.select do |name, parameters|
-        empty_asg?(parameters) && tags_filtered?(parameters) ? { name => parameters } : nil
-      end
-
-      CREATE_NAMES.call(asgs)
-      return asgs.to_json if @to_json
-
-      asgs
+      by_instances('')
     end
 
     def stringify(tags)
