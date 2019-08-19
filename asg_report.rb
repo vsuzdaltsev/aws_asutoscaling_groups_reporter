@@ -29,7 +29,7 @@ def environment_asgs(env, regions)
     asgs = Aws::Asgs.new(region: region, filter_by_tags: { environment: env })
 
     ASGS_TYPES.each do |asg_type|
-      memo.merge!(asg_type => { region: asgs.send(asg_type) })
+      memo.merge!(region => { asg_type => asgs.send(asg_type) })
     end
   end
 
@@ -37,10 +37,8 @@ def environment_asgs(env, regions)
 end
 
 def all_asgs(regions)
-  {}.tap do |asgs|
-    ENVIRONMENTS.each do |env|
-      asgs.merge!(environment_asgs(env, regions))
-    end
+  ENVIRONMENTS.each_with_object({}) do |env, asgs|
+    asgs.merge!(environment_asgs(env, regions))
   end
 end
 
