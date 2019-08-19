@@ -21,16 +21,23 @@ def auto_scaling_groups(*)
   { statusCode: 200, body: json }
 end
 
+def collect_asg_types(asgs)
+  ASGS_TYPES.each_with_object({}) do |asg_type, memo|
+    memo.merge!(asg_type => asgs.send(asg_type))
+  end
+end
+
+def asgs_by_region(asgs, region)
+  { region => collect_asg_types(asgs) }
+end
+
 # @param env [String] - set within 'environment' tag
 # @param regions [Array] - aws regions to lookup
 # @return [Hash]
 def environment_asgs(env, regions)
   value = regions.each_with_object({}) do |region, memo|
     asgs = Aws::Asgs.new(region: region, filter_by_tags: { environment: env })
-
-    ASGS_TYPES.each do |asg_type|
-      memo.merge!(region => { asg_type => asgs.send(asg_type) })
-    end
+    memo.merge!(asgs_by_region(asgs, region))
   end
 
   { env => value }
