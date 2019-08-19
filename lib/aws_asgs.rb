@@ -97,7 +97,11 @@ module Aws
     end
 
     def running
-      select_by_instances('!')
+      by_instances('!')
+    end
+
+    def sleeping
+      by_instances('')
     end
 
     def by_instances(negation)
@@ -109,10 +113,6 @@ module Aws
       return asgs.to_json if @to_json
 
       asgs
-    end
-
-    def sleeping
-      by_instances('')
     end
 
     def stringify(tags)
