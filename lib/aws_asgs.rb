@@ -79,7 +79,7 @@ module Aws
       @to_json        = to_json
       @asgs           = AsgApiCall.auto_scaling_groups(region: @region)
       @available_tags = AsgAvailableTags.new(region: @region, all_asgs: @asgs).available_tags
-      @tags           = symbolize(filter_by_tags)
+      @tags           = stringify(filter_by_tags)
 
       create_check_tags_aliases
 
